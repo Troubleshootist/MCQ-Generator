@@ -1,0 +1,6 @@
+asgiref==3.5.0
+Django==4.0.4
+greenlet==1.1.2
+simplejson==3.17.6
+SQLAlchemy==1.4.35
+sqlparse==0.4.2
