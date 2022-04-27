@@ -1,6 +1,16 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, Date
 from sqlalchemy.orm import relationship
-from db import Model, engine
+
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
+
+Model = declarative_base()
+engine = create_engine('sqlite:////Users/dmitriy/github/mcq_generator/training_center/mcq_gen/mcq_old_base.db', echo=False)
+Sess = sessionmaker(autoflush=False)
+session = Sess(bind=engine)
 
 
 class User(Model):

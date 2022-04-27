@@ -4,14 +4,26 @@ from django.db import models
 class Training(models.Model):
     name = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.name
+    
+
 class AtaChapter(models.Model):
     ata_digit = models.CharField(max_length=10)
     ata_description = models.CharField(max_length=100)
+    def __str__(self):
+        return self.ata_digit
+
+class Requirements(models.Model):
+    training = models.ForeignKey(Training, on_delete=models.CASCADE, related_name='requirements')
+    ata = models.ForeignKey(AtaChapter, on_delete=models.CASCADE, related_name='requirements')
+    questions_number = models.IntegerField()
+    level = models.IntegerField()
 
 
 class Question(models.Model):
     question = models.CharField(max_length=200)
-    level = models.IntegerField()
+    level = models.IntegerField
     training = models.ForeignKey(to=Training, on_delete=models.CASCADE, related_name='training')
     enabled = models.BooleanField(default=True)
     checked = models.BooleanField(default=False)
@@ -55,6 +67,7 @@ class ExamQuestion(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='used_in_exam')
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='exam_questions')
     sequence_number = models.IntegerField()
+
 
 
 
