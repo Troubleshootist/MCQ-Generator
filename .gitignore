@@ -1,2 +1,6 @@
 /venv/
 /.vscode/
+/bin/
+/training_center/__pycache__/
+/training_center/mcq_gen/__pycache__/
+/training_center/migrations/__pycache__/
