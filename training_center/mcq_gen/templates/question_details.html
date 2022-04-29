@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <h3>Question ID: {{ question.id }} details</h3>
+        {% if not question.enabled %}
+            <table class="table table-sm table-hover table-bordered table-danger">
+            {% elif not question.checked %}
+                <table class="table table-sm table-hover table-bordered table-warning">
+                {% else %}
+                    <table class="table table-sm table-hover table-bordered">
+                    {% endif %}
+                    <tr>
+                        <td>ID</td>
+                        <td>{{ question.id }}</td>
+                    </tr>
+                    <tr>
+                        <td>ATA</td>
+                        <td>{{ question.ata_chapter.ata_digit }} - {{ question.ata_chapter.ata_description }}</td>
+                    </tr>
+                    <tr>
+                        <td>Level</td>
+                        <td>{{ question.level }}</td>
+                    </tr>
+                    <tr>
+                        <td>Training</td>
+                        <td>{{ question.training.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Question</td>
+                        <td>{{ question.question }}</td>
+                    </tr>
+                    <tr>
+                        <td>Answer A</td>
+                        {% if  question.answers.all.0.correct %}
+                            <td class="text-success table-success">{{ question.answers.all.0.answer }}</td>
+                        {% else %}
+                            <td class="text-danger">{{ question.answers.all.0.answer }}</td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <td>Answer B</td>
+                        {% if  question.answers.all.1.correct %}
+                            <td class="text-success table-success">{{ question.answers.all.1.answer }}</td>
+                        {% else %}
+                            <td class="text-danger">{{ question.answers.all.1.answer }}</td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <td>Answer C</td>
+                        {% if  question.answers.all.2.correct %}
+                            <td class="text-success table-success">{{ question.answers.all.2.answer }}</td>
+                        {% else %}
+                            <td class="text-danger">{{ question.answers.all.2.answer }}</td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <td>Enabled</td>
+                        <td>{{ question.enabled }}</td>
+                    </tr>
+                    <tr>
+                        <td>Checked</td>
+                        <td>{{ question.checked }}</td>
+                    </tr>
+                    <tr>
+                        <td>Book page</td>
+                        <td>{{ question.book_page }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Issue date
+                        </td>
+                        <td>
+                            {{ question.issue_date }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Check date
+                        </td>
+                        <td>
+                            {{ question.check_date }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Change date
+                        </td>
+                        <td>
+                            {{ question.change_date }}
+                        </td>
+                    </tr>
+                    {% if question.ref_to_old_id != 0 %}
+                        <tr>
+                            <td>
+                                Ref to old ID
+                            </td>
+                            <td>
+                                {% url 'question_details' question.ref_to_old_id as the_url %}
+                                <a href="{{ the_url }}">{{ question.ref_to_old_id }}</a>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% if question.ref_to_new_id != 0 %}
+                        <tr>
+                            <td>
+                                Ref to new ID
+                            </td>
+                            <td>
+                                {% url 'question_details' question.ref_to_new_id as the_url %}
+                                <a href="{{ the_url }}">{{ question.ref_to_new_id }}</a>
+                            </td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td>
+                            Issued by
+                        </td>
+                        <td>
+                            {{ question.issued_by }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Checked by
+                        </td>
+                        <td>
+                            {{ question.checked_by }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Changed by
+                        </td>
+                        <td>
+                            {{ question.changed_by }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Disable reason
+                        </td>
+                        <td>
+                            {{ question.disable_reason }}
+                        </td>
+                    </tr>
+                </table>
+                {% if question.enabled %}
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Disable reason</span>
+                        <input type="text" class="form-control" id="disable_reason">
+                    </div>
+                    <button type="button" class="btn btn-danger" id="disable_btn">
+                        Disable
+                    </button>
+                {% endif %}
+                {% if not question.enabled %}
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Enabled by</span>
+                        <input type="text" class="form-control" id="enabled_by">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="enable_btn">
+                        Enable
+                    </button>
+                {% endif %}
+                {% if question.checked %}
+                    <br>
+                    <br>
+                    <button type="button" class="btn btn-warning" id="uncheck_btn">
+                        Uncheck
+                    </button>
+                {% endif %}
+                {% if not question.checked %}
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Checked by</span>
+                        <input type="text" class="form-control" id="checked_by">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="check_btn">
+                        Check
+                    </button>
+                {% endif %}
+            </div>
+        {% endblock content %}
+        {% block scripts %}
+            <script>
+        $('#disable_btn').on('click' , function(){         
+            var disableReason = $('#disable_reason').val();           
+            $.get( "{% url 'disable_question' %}", { question_id: "{{question.id}}", disable_reason: disableReason} );
+            setTimeout(function(){
+
+                window.location.reload();
+
+            }, 300); 
+
+        });
+        $('#enable_btn').on('click' , function(){         
+            var enabled_by = $('#enabled_by').val();           
+            $.get( "{% url 'enable_question' %}", { question_id: "{{question.id}}", enabled_by: enabled_by} );
+            setTimeout(function(){
+
+                window.location.reload();
+
+            }, 300); 
+
+        });
+        $('#uncheck_btn').on('click' , function(){                  
+            $.get( "{% url 'uncheck_question' %}", { question_id: "{{question.id}}" } );
+            setTimeout(function(){
+
+                window.location.reload();
+
+            }, 300); 
+
+        });
+        $('#check_btn').on('click' , function(){         
+            var checked_by = $('#checked_by').val();           
+            $.get( "{% url 'check_question' %}", { question_id: "{{question.id}}", checked_by: checked_by} );
+            setTimeout(function(){
+
+                window.location.reload();
+
+            }, 300); 
+
+        });
+
+            </script>
+        {% endblock scripts %}

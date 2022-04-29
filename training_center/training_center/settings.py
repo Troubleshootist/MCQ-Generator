@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'mcq_gen'
+    'mcq_gen',
+    'django_tables2'
 ]
 
 MIDDLEWARE = [

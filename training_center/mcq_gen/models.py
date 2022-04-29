@@ -23,7 +23,7 @@ class Requirements(models.Model):
 
 class Question(models.Model):
     question = models.CharField(max_length=200)
-    level = models.IntegerField
+    level = models.IntegerField(null=True)
     training = models.ForeignKey(to=Training, on_delete=models.CASCADE, related_name='training')
     enabled = models.BooleanField(default=True)
     checked = models.BooleanField(default=False)

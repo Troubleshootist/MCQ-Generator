@@ -21,7 +21,10 @@ def questions_migrate():
         question = models.Question()
         question.id = old_question.id
         question.question = old_question.question
-        question.level = old_question.level
+        try:
+            question.level = int(old_question.level)
+        except:
+            question.level = None
         question.enabled = old_question.enabled
         question.checked = old_question.checked
         if len(old_question.ataDigit) == 1:
@@ -72,6 +75,7 @@ def questions_migrate():
         answer_a.save()
         answer_b.save()
         answer_c.save()
+        print(question)
 
 
 
