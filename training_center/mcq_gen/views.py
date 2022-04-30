@@ -1,9 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import ListView
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
 from . import services
-from .forms import QuestionsFilterForm
+from .forms import *
 
 
 
@@ -71,3 +71,26 @@ def check_question(request):
     checked_question = services.check_question(question_id = question_id, 
                                                 checked_by=checked_by)
     return render(request, 'question_details.html', context={"question": checked_question})   
+
+
+def create_question(request):
+    create_question_form = CreateNewQuestionForm()
+    context = {'form' : create_question_form}
+    if request.method == 'POST':
+        create_question_form = CreateNewQuestionForm(request.POST)
+        if create_question_form.is_valid():
+            created_question = services.create_edit_question(create_question_form.cleaned_data)
+            return redirect('question_details', question_id = created_question.id)
+    return render(request, 'edit_question.html', context)
+
+def edit_question(request, question_id):
+    initial = services.get_initial_values_for_question_edit_form(question_id)
+    edit_question_form = EditQuestionForm(initial=initial)
+    context = {'form' : edit_question_form}
+    if request.method == 'POST':
+        edit_question_form = EditQuestionForm(request.POST)
+        if edit_question_form.is_valid():
+            edited_question = services.create_edit_question(edit_question_form.cleaned_data, 
+                                                            old_question_id = question_id)
+            return redirect('question_details', question_id = edited_question.id)
+    return render(request, 'edit_question.html', context)

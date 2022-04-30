@@ -2,6 +2,8 @@
 {% block content %}
     <div class="container">
         <h3>Question ID: {{ question.id }} details</h3>
+        {% url 'edit_question' question.id as the_url %}
+        <a href="{{ the_url }}" type="button" class="btn btn-primary">Edit question</a>
         {% if not question.enabled %}
             <table class="table table-sm table-hover table-bordered table-danger">
             {% elif not question.checked %}
@@ -63,7 +65,9 @@
                     </tr>
                     <tr>
                         <td>Book page</td>
-                        <td>{{ question.book_page }}</td>
+                        <td>
+                            {{ question.book_page }}
+                        </td>
                     </tr>
                     <tr>
                         <td>

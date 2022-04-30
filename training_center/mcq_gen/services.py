@@ -1,6 +1,5 @@
 import pandas as pd
-
-
+from datetime import date
 from .models import *
 
 def get_questions_database():
@@ -64,5 +63,77 @@ def check_question(question_id, checked_by):
     question.checked_by = checked_by
     question.save()
     return question
+
+def create_edit_question(data, old_question_id = None):
+    new_question = Question(
+        training = data['training'],
+        ata_chapter = data['ata'],
+        level = data['level'],
+        question = data['question'],
+        book_page = data['book_page'],
+        issue_date = date.today()
+    )
+
+    if old_question_id: # если меняем вопрос, то передаем ид старого вопроса
+        old_question = Question.objects.filter(id=old_question_id).first()
+        new_question.ref_to_old_id = old_question.id
+        new_question.issued_by = data['changed_by']
+        new_question.save()
+        old_question.enabled = False
+        old_question.changed_by = data['changed_by']
+        old_question.disable_reason = data['change_reason']
+        old_question.ref_to_new_id = new_question.id
+        old_question.change_date = date.today()
+        old_question.save()
+    else:
+        issued_by = data['issued_by']
+        new_question.save()
+
+    answer_a = Answer(answer = data['answer_a'])
+    answer_b = Answer(answer = data['answer_b'])
+    answer_c = Answer(answer = data['answer_c'])
+
+    if data['correct_answer'] == 'A':
+        answer_a.correct = True
+    elif data['correct_answer'] == 'B':
+        answer_b.correct = True
+    elif data['correct_answer'] == 'C':
+        answer_c.correct = True
+    new_question.answers.add(answer_a, bulk =False)
+    new_question.answers.add(answer_b, bulk =False)
+    new_question.answers.add(answer_c, bulk =False)
+    answer_a.save()
+    answer_b.save()
+    answer_c.save()
+
+    return new_question
+
+def get_initial_values_for_question_edit_form(question_id):
+    question = Question.objects.filter(id=question_id).first()
+    if question.answers.all()[0].correct:
+        correct_answer_char = 'A'
+    elif question.answers.all()[1].correct:
+        correct_answer_char = 'B'
+    elif question.answers.all()[2].correct:
+        correct_answer_char = 'C'
+
+    initial_values_for_form = {
+        'training': question.training,
+        'ata': question.ata_chapter,
+        'level': question.level,
+        'question': question.question,
+        'answer_a': question.answers.all()[0].answer,
+        'answer_b': question.answers.all()[1].answer,
+        'answer_c': question.answers.all()[2].answer,
+        'correct_answer': correct_answer_char,
+        'book_page': question.book_page,
+    }
+    return initial_values_for_form
+
+    
+
+
+
+
 
     

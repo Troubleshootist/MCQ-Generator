@@ -20,10 +20,11 @@
                             </div>
                         {% endfor %}
                     </div>
-                    <input type="submit" value="Filter" class="btn btn-primary">
+                    <input type="submit" value="Filter" class="btn btn-primary mt-3">
                 </form>
             </div>
             <div class = "col-sm">
+                <a href="{% url 'create_question' %}" class="btn btn-warning mt-3">Create new question</a>
                 <div class="card mt-3"  id="general_info">
                     <div class="card-header">General information</div>
                     <ul class="list-group list-group-flush">
