@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+    {{ table | safe }}
+    <a type="button"  href="{% url 'create_exam' %}">Create Exam</a>
+{% endblock content %}
+{% block scripts %}
+    <script type="text/javascript" language="javascript" class="init">
+    $(document).ready(function() {
+        var table = $('#exams_database').dataTable( {
+            paging: false,
+            scrollY: 400,
+            scrollCollapse: true,
+            fixedColumns: true,
+            dom: 'Bfrtip',
+            
+        } );
+        
+        
+        $(document).on('click','#exams_database tr',function(e){
+            var row_object  = table.api().row(this).data();
+            var url = "{% url 'exam_details' 'kuku'%}"
+            url = url.replace('kuku', row_object[1])
+
+            window.open(url, '_blank');
+           
+        });
+    } );
+    </script>
+{% endblock scripts %}

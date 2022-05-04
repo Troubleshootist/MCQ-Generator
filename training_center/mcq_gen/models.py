@@ -6,28 +6,37 @@ class Training(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 
 class AtaChapter(models.Model):
     ata_digit = models.CharField(max_length=10)
     ata_description = models.CharField(max_length=300)
+
     def __str__(self):
         return self.ata_digit
 
+
 class Requirements(models.Model):
-    training = models.ForeignKey(Training, on_delete=models.CASCADE, related_name='requirements')
-    ata = models.ForeignKey(AtaChapter, on_delete=models.CASCADE, related_name='requirements')
+    training = models.ForeignKey(
+        Training, on_delete=models.CASCADE, related_name='requirements')
+    ata = models.ForeignKey(
+        AtaChapter, on_delete=models.CASCADE, related_name='requirements')
     questions_number = models.IntegerField()
     level = models.IntegerField()
+
+    def __str__(self):
+        return " ,".join((self.ata.ata_digit, str(self.level), str(self.questions_number)))
 
 
 class Question(models.Model):
     question = models.CharField(max_length=400)
     level = models.IntegerField(default=100)
-    training = models.ForeignKey(to=Training, on_delete=models.CASCADE, related_name='training')
+    training = models.ForeignKey(
+        to=Training, on_delete=models.CASCADE, related_name='training')
     enabled = models.BooleanField(default=True)
     checked = models.BooleanField(default=False)
-    ata_chapter = models.ForeignKey(AtaChapter, on_delete=models.CASCADE, related_name = 'questions')
+    ata_chapter = models.ForeignKey(
+        AtaChapter, on_delete=models.CASCADE, related_name='questions')
     book_page = models.CharField(max_length=100)
     issue_date = models.DateField()
     check_date = models.DateField(blank=True, null=True)
@@ -39,37 +48,53 @@ class Question(models.Model):
     changed_by = models.CharField(max_length=100, blank=True, null=True)
     disable_reason = models.CharField(max_length=200, blank=True, null=True)
 
+    def __str__(self):
+        return self.question
+
 
 class Answer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name='answers')
     answer = models.CharField(max_length=400, default=False)
     correct = models.BooleanField(default=False)
 
 
 class Course(models.Model):
-    training = models.ForeignKey(Training, on_delete=models.CASCADE, related_name='courses')
+    training = models.ForeignKey(
+        Training, on_delete=models.CASCADE, related_name='courses')
     course_number = models.CharField(max_length=50)
+
+    def __str__(self):
+        return " ,".join((self.course_number, self.training.name))
+
 
 class Student(models.Model):
     name = models.CharField(max_length=30)
     surname = models.CharField(max_length=30)
     dob = models.DateField()
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='students')
+    course = models.ForeignKey(
+        Course, on_delete=models.CASCADE, related_name='students')
+
 
 class Exam(models.Model):
     date = models.DateField()
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='exams')
+    course = models.ForeignKey(
+        Course, on_delete=models.CASCADE, related_name='exams')
     ata_chapters = models.ManyToManyField(AtaChapter)
-    is_reexam = models.BooleanField(default=False) # поле под вопросом
+    questions = models.ManyToManyField(Question)
+    is_reexam = models.BooleanField(default=False)  # поле под вопросом
     note_for_examiner = models.CharField(max_length=50)
 
+
 class ExamQuestion(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='used_in_exam')
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='exam_questions')
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name='used_in_exam')
+    exam = models.ForeignKey(
+        Exam, on_delete=models.CASCADE, related_name='exam_questions')
     sequence_number = models.IntegerField()
 
 
-
-
-    
-
+class QuestionSequence(models.Model):
+    question = models.ManyToManyField(Question)
+    exam = models.ManyToManyField(Exam)
+    sequence_number = models.IntegerField()

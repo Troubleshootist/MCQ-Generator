@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+    {{ exam_questions_table | safe }}
+    {% url 'create_reexam' exam.id as the_url %}
+    <a href="{{ the_url }}" type="button" class="btn btn-primary">Edit question</a>
+{% endblock content %}
+{% block scripts %}
+    <script>
+$(document).ready(function() {
+    var table = $('#exam_details').dataTable( {
+        paging: false,
+        scrollY: 400,
+        scrollCollapse: true,
+        fixedColumns: true,
+        dom: 'Bfrtip',
+        
+    } );
+    
+    
+    $(document).on('click','#exam_details',function(e){
+        var row_object  = table.api().row(this).data();
+        {% comment %} var url = "{% url 'question_details' 'kuku'%}"
+        url = url.replace('kuku', row_object[1])
+        
+        window.open(url, '_blank'); {% endcomment %}
+       
+    });
+} );
+    </script>
+{% endblock scripts %}

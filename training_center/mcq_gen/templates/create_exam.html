@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container px-5 mt-4 bg-light">
+        <div class="row">
+            <div class="col-sm mt-2">
+                <form action="" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ create_exam_form }}
+                    {% comment %} <label for="">Ata chapter:</label>
+                    <div class="row mt-2" id='ata_checkboxes'>
+                        {% for ata in atas %}
+                            <div class="col-1">
+                                <label for="{{ ata.ata_digit }}">{{ ata.ata_digit }}</label>
+                                <input class="form-check-input" type="checkbox" name="{{ ata.ata_digit }}" id="{{ ata.ata_digit }}">
+                            </div>
+                        {% endfor %}
+                    </div> {% endcomment %}
+                    <input type="submit" value="Create Exam" class="btn btn-primary mt-3">
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
