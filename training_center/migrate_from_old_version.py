@@ -1,3 +1,4 @@
+
 from training_center.wsgi import *
 import json
 import os
@@ -21,7 +22,7 @@ def questions_migrate():
         try:
             question.level = int(old_question.level)
         except:
-            question.level = None
+            question.level = 0
         question.enabled = old_question.enabled
         question.checked = old_question.checked
         if len(old_question.ataDigit) == 1:
@@ -97,7 +98,6 @@ def course_migrate():
     models.Course.objects.all().delete()
     models.Student.objects.all().delete()
     models.Exam.objects.all().delete()
-    models.ExamQuestion.objects.all().delete()
 
     old_courses = old_models.session.query(old_models.Course).all()
     courses = []
@@ -211,6 +211,38 @@ def fill_sequence_numbers():
             seq.question.add(question)
 
 
+def migrate_results():
+    old_results = old_models.session.query(old_models.QuestionResult).all()
+    for old_result in old_results:
+        exam = models.Exam.objects.filter(id=old_result.exam_id).first()
+        question = models.Question.objects.filter(
+            id=old_result.question_id).first()
+        student = models.Student.objects.filter(
+            id=old_result.student_id).first()
+        result = models.QuestionResult(is_correct=old_result.correct)
+        result.save()
+        result.exam.add(exam)
+        result.question.add(question)
+        result.student.add(student)
+        print(result)
+
+
+def migrate_exam_questions():
+    old_exam_questions = old_models.session.query(
+        old_models.ExamQuestion).all()
+
+    for old_exam_question in old_exam_questions:
+        exam = models.Exam.objects.filter(id=old_exam_question.exam_id).first()
+        question = models.Question.objects.filter(
+            id=old_exam_question.question_id).first()
+        exam.questions.add(question)
+        sequence = models.QuestionSequence(
+            sequence_number=old_exam_question.seq_number)
+        sequence.exam = exam
+        sequence.question = question
+        sequence.save()
+
+
 if __name__ == '__main__':
 
     # questions_migrate()
@@ -220,5 +252,6 @@ if __name__ == '__main__':
     # fill_sequence_table()
     # fill_exam_questions_new_table()
     # fill_sequence_numbers()
-
+    # migrate_results()
+    migrate_exam_questions()
     pass

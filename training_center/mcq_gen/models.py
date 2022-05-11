@@ -38,7 +38,7 @@ class Question(models.Model):
     ata_chapter = models.ForeignKey(
         AtaChapter, on_delete=models.CASCADE, related_name='questions')
     book_page = models.CharField(max_length=100)
-    issue_date = models.DateField()
+    issue_date = models.DateField(null=True)
     check_date = models.DateField(blank=True, null=True)
     change_date = models.DateField(blank=True, null=True)
     ref_to_old_id = models.IntegerField(default=0)
@@ -82,19 +82,23 @@ class Exam(models.Model):
         Course, on_delete=models.CASCADE, related_name='exams')
     ata_chapters = models.ManyToManyField(AtaChapter)
     questions = models.ManyToManyField(Question)
-    is_reexam = models.BooleanField(default=False)  # поле под вопросом
     note_for_examiner = models.CharField(max_length=50)
 
 
-class ExamQuestion(models.Model):
-    question = models.ForeignKey(
-        Question, on_delete=models.CASCADE, related_name='used_in_exam')
-    exam = models.ForeignKey(
-        Exam, on_delete=models.CASCADE, related_name='exam_questions')
-    sequence_number = models.IntegerField()
-
-
 class QuestionSequence(models.Model):
-    question = models.ManyToManyField(Question)
-    exam = models.ManyToManyField(Exam)
-    sequence_number = models.IntegerField()
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name='sequences')
+    exam = models.ForeignKey(
+        Exam, on_delete=models.CASCADE, related_name='sequences')
+    sequence_number = models.IntegerField(verbose_name='Seq. number')
+
+
+class QuestionResult(models.Model):
+    exam = models.ForeignKey(
+        Exam, on_delete=models.CASCADE, related_name='results', default=None)
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name='results', default=None)
+    student = models.ForeignKey(
+        Student, on_delete=models.CASCADE, related_name='results', default=None)
+    is_correct = models.BooleanField(default=False)
+    test_field = models.IntegerField(default=None)

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
     {{ table | safe }}
-    <a type="button"  href="{% url 'create_exam' %}">Create Exam</a>
+    <a href="{% url 'create_exam' %}" type="button" class="btn btn-primary">Create Exam</a>
 {% endblock content %}
 {% block scripts %}
     <script type="text/javascript" language="javascript" class="init">
@@ -19,7 +19,7 @@
         $(document).on('click','#exams_database tr',function(e){
             var row_object  = table.api().row(this).data();
             var url = "{% url 'exam_details' 'kuku'%}"
-            url = url.replace('kuku', row_object[1])
+            url = url.replace('kuku', row_object[0])
 
             window.open(url, '_blank');
            

@@ -26,5 +26,10 @@ urlpatterns = [
     path('exams/create_exam/',
          views.create_exam, name='create_exam'),
     path('exams/<str:exam_id>/create_reexam',
-         views.create_reexam, name='create_reexam')
+         views.create_reexam, name='create_reexam'),
+    path('exams/<str:exam_id>/delete_exam',
+         views.delete_exam, name='delete_exam'),
+
+    path('exams/<str:exam_id>/auto_change_question',
+         views.auto_change_question, name='auto_change_questions')
 ]
