@@ -4,3 +4,9 @@
 /training_center/__pycache__/
 /training_center/mcq_gen/__pycache__/
 /training_center/migrations/__pycache__/
+/.idea/mcq_generator.iml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/vcs.xml
+/.idea/.gitignore

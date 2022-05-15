@@ -23,6 +23,10 @@ urlpatterns = [
     path('exams/', views.all_exams, name='all_exams'),
     path('exams/<str:exam_id>/details',
          views.exam_details, name='exam_details'),
+    path('exams/<str:exam_id>/ajax_details_for_questions',
+         views.ajax_details_for_questions, name='ajax_details_for_questions'),
+    path('exams/<str:exam_id>/ajax_count_questions_by_ata',
+         views.ajax_count_questions_by_ata, name='ajax_count_questions_by_ata'),
     path('exams/create_exam/',
          views.create_exam, name='create_exam'),
     path('exams/<str:exam_id>/create_reexam',
@@ -30,6 +34,8 @@ urlpatterns = [
     path('exams/<str:exam_id>/delete_exam',
          views.delete_exam, name='delete_exam'),
 
-    path('exams/<str:exam_id>/auto_change_question',
-         views.auto_change_question, name='auto_change_questions')
+    path('exams/<str:exam_id>/auto_change_questions',
+         views.auto_change_question, name='auto_change_questions'),
+
+    path('courses/', views.all_courses, name='all_courses')
 ]

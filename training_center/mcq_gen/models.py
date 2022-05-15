@@ -25,7 +25,7 @@ class Requirements(models.Model):
     level = models.IntegerField()
 
     def __str__(self):
-        return " ,".join((self.ata.ata_digit, str(self.level), str(self.questions_number)))
+        return f'Training: {self.training.name}, ATA: {self.ata.ata_digit}'
 
 
 class Question(models.Model):
@@ -75,6 +75,9 @@ class Student(models.Model):
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name='students')
 
+    def __str__(self):
+        return " ,".join((self.surname, self.course.course_number, self.course.training.name))
+
 
 class Exam(models.Model):
     date = models.DateField()
@@ -101,4 +104,3 @@ class QuestionResult(models.Model):
     student = models.ForeignKey(
         Student, on_delete=models.CASCADE, related_name='results', default=None)
     is_correct = models.BooleanField(default=False)
-    test_field = models.IntegerField(default=None)

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class = "container">
+        <div class="row row-cols-1 row-cols-md-4 g-3">
+            {% for course in courses %}
+                <div class="col">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Course {{ course.course_number }}</h5>
+                            <h6 class="card-title">{{ course.training.name }}</h6>
+                            <p class="card-text">
+                                <ul>
+                                    <li>Number of studens: {{ course.students.count }}</li>
+                                    <li>Number of exams: {{ course.exams.count }}</li>
+                                </ul>
+                            </p>
+                            <a href="#" class="btn btn-primary">Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock content %}

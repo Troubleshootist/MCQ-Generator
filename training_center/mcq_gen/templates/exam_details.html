@@ -2,27 +2,65 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <h2>Exam ID# {{ exam.id }} details</h2>
-            {{ exam_questions_table | safe }}
+            <h2>Exam ID# {{ exam.id }}, {{ exam.note_for_examiner }}</h2>
+            <h5>{{ exam.course.training.name }}</h5>
+            <table id="exam_question_details"
+                   class="table table-sm table-hover table-bordered table-stripped">
+                <thead>
+                    <tr>
+                        <th>Sequence Number</th>
+                        <th>Question ID</th>
+                        <th>Question</th>
+                        <th>ATA</th>
+                        <th>Level</th>
+                        {% if is_it_reexam %}<th>Used in last exam</th>{% endif %}
+                        {% if is_exam_checked %}<th>Results by this exam</th>{% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
         <div class="row mt-4">
-            <h2>Questions count</h2>
-            {{ exam_questions_by_ata | safe }}
+            <h2>Questions count and Requirements</h2>
+            {% comment %} {{ exam_questions_by_ata | safe }} {% endcomment %}
+            <table id="count_questions_by_ata"
+                   class="table table-sm table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th>ATA</th>
+                        <th>Questions count</th>
+                        {% if is_it_reexam %}
+                            <th>Used questions count</th>
+                            <th>Used questions percentage</th>
+                        {% endif %}
+                        <th>Required number of questions</th>
+                        <th>Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
+        {% if not is_it_second_reexam %}
+            {% url 'create_reexam' exam.id as the_url_to_reexam %}
+            <a href="{{ the_url_to_reexam }}" type="button" class="btn btn-primary">Create reexam</a>
+        {% endif %}
+        {% if not is_exam_checked %}
+            {% url 'delete_exam' exam.id as the_url_to_delete_exam %}
+            <a href="{{ the_url_to_delete_exam }}"
+               type="button"
+               class="btn btn-danger">Delete exam</a>
+        {% endif %}
     </div>
-    {% if not is_it_second_reexam %}
-        {% url 'create_reexam' exam.id as the_url_to_reexam %}
-        <a href="{{ the_url_to_reexam }}" type="button" class="btn btn-primary">Create reexam</a>
-    {% endif %}
-    {% url 'delete_exam' exam.id as the_url_to_delete_exam %}
-    <a href="{{ the_url_to_delete_exam }}"
-       type="button"
-       class="btn btn-danger">Delete exam</a>
 {% endblock content %}
 {% block scripts %}
     <script>
 $(document).ready(function() {
     var question_details_table = $('#exam_question_details').dataTable( {
+        ajax: "{% url 'ajax_details_for_questions' 'kuku'%}".replace('kuku', {{ exam.id }}),
+        dataSrc: 'data',
+        
         paging: false,
         scrollY: 400,   
         dom: 'Bfrtip',
@@ -31,9 +69,7 @@ $(document).ready(function() {
             {
                 extend: 'selected',
                 text: 'Auto change selected question',
-            },
-            'selectAll',
-            'selectNone',
+            }
         ],
       
         "language": {
@@ -42,28 +78,35 @@ $(document).ready(function() {
         
     } );
 
-    console.log(question_details_table.button(0))
+    {% if is_exam_checked %}        question_details_table.api().button(0).remove(){% endif %}
+
+    var count_questions_by_ata = $('#count_questions_by_ata').dataTable( {
+        ajax: "{% url 'ajax_count_questions_by_ata' 'kuku'%}".replace('kuku', {{ exam.id }}),
+        dataSrc: 'data',
+        paging: false,
+        searching: false,
+        info: false
+    } );
+
+
 
     question_details_table.api().button(0).action( function ( e, dt, button, config ) {
         var url = "{% url 'auto_change_questions' 'kuku'%}"
         url = url.replace('kuku', {{ exam.id }})
         selectedRowsData = dt.rows( { selected: true } ).data()
         data = JSON.stringify(selectedRowsData[0])
-        $.get( url, { question: data } );
-    } );
+        $.get( url, { question: data } )
+            .done(function( data ) {
+                question_details_table.api().ajax.reload()
+                count_questions_by_ata.api().ajax.reload()
+            });;
+    } ); 
+
+
    
-    
-    
-    {% comment %} $(document).on('click','#exam_question_details',function(e){
-        var row_object  = question_details_table.api().row(this).data();
-        {% comment %} var url = "{% url 'question_details' 'kuku'%}"
-        url = url.replace('kuku', row_object[1])
-        
-        window.open(url, '_blank'); 
-       
-    }); {% endcomment %}
+
 
     
 } );
-</script>
+    </script>
 {% endblock scripts %}

@@ -48,7 +48,7 @@ class CreateExamForm(forms.ModelForm):
         model = Exam
         fields = ['date', 'course', 'ata_chapters', 'note_for_examiner']
         widgets = {
-            'ata_chapters': forms.CheckboxSelectMultiple(attrs={'cols': 80, 'rows': 20}),
+            'ata_chapters': forms.CheckboxSelectMultiple(attrs={'class': 'col'}),
             'date': forms.widgets.DateInput(attrs={'type': 'date'})
         }
 

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views.generic import ListView
 from django.core import serializers
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 import json
 from . import services
 from .forms import *
@@ -109,17 +109,27 @@ def all_exams(request):
 
 
 def exam_details(request, exam_id):
-    exam_questions_details = services.get_exam_details_html_table(
-        exam_id=exam_id)
+
     exam = services.get_exam_by_id(exam_id)
     is_it_second_reexam = services.is_it_second_reexam(exam)
-    if request.method == 'POST':
-        pass
-    context = {'exam_questions_table': exam_questions_details['exam_details_table'],
-               'exam_questions_by_ata': exam_questions_details['exam_questions_by_ata'],
-               'exam': exam,
-               'is_it_second_reexam': is_it_second_reexam}
+    is_it_reexam = services.is_it_reexam(exam)
+    is_exam_checked = services.is_exam_checked(exam)
+
+    context = {'exam': exam,
+               'is_it_reexam': is_it_reexam,
+               'is_it_second_reexam': is_it_second_reexam,
+               'is_exam_checked': is_exam_checked}
     return render(request, 'exam_details.html', context)
+
+
+def ajax_details_for_questions(request, exam_id):
+    exam_questions_details_json = services.get_exam_details(exam_id)
+    return JsonResponse(exam_questions_details_json['exam_details'])
+
+
+def ajax_count_questions_by_ata(request, exam_id):
+    count_questions_by_ata_json = services.get_exam_details(exam_id)
+    return JsonResponse(count_questions_by_ata_json['exam_questions_by_ata'])
 
 
 def create_exam(request):
@@ -159,6 +169,18 @@ def auto_change_question(request, exam_id):
     question_id_to_change = json.loads(request.GET['question'])[1]
     changed_exam = services.change_one_question_in_exam(
         exam, question_id_to_change)
-    context = {'exam': changed_exam}
-    return redirect('exam_details', exam_id=changed_exam.id)
-    return render(request, 'exam_details.html', context=context)
+
+    return JsonResponse(changed_exam, safe=False)
+
+
+def all_courses(request):
+
+    courses = services.get_all_courses()
+    context = {'courses': courses}
+
+    return render(request, 'courses.html', context)
+
+
+def course_power_json(request, course_id):
+    power = services.get_course_power(course_id)
+    return JsonResponse({'power': power})
