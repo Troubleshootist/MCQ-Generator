@@ -1,4 +1,3 @@
-
 from math import ceil
 from django.db.models import Q
 import pandas as pd
@@ -20,7 +19,6 @@ def get_all_atas():
 
 
 def get_question_by_id(question_id):
-
     question = Question.objects.filter(id=question_id).first()
     return question
 
@@ -43,7 +41,8 @@ def get_questions_by_ata_and_training(atas_list, training_id):
                               'ref_to_new_id'])
         df = df.replace(to_replace=True, value='Yes')
         df = df.replace(to_replace=False, value='No')
-        return df.to_html(classes='table table-sm table-hover table-bordered', table_id='questions_database'), questions_count, training.name
+        return df.to_html(classes='table table-sm table-hover table-bordered',
+                          table_id='questions_database'), questions_count, training.name
     else:
         return '', 0, training.name
 
@@ -150,7 +149,6 @@ def get_initial_values_for_question_edit_form(question_id):
 
 
 def create_exam(data):
-
     # Определяем пересдача ли или нет
     exam = Exam(
         date=data['date'],
@@ -185,7 +183,6 @@ def new_exam(exam):
 
 
 def _addition_questions_to_divide_by_four(exam, initial_exam=None):
-
     remainder_of_div_by_four = exam.questions.count() % 4
     prohibited_questions = Question.objects.filter(
         exam__in=[exam, initial_exam])
@@ -220,7 +217,7 @@ def _fill_questions_for_reexam(exam, initial_exam):
     requirements = Requirements.objects.filter(
         training=exam.course.training, ata__in=exam.ata_chapters.all())
     for requirement in requirements:
-        not_used_count = ceil(requirement.questions_number*50/100)
+        not_used_count = ceil(requirement.questions_number * 50 / 100)
         used_count_max = requirement.questions_number - not_used_count
 
         not_used_questions_in_inital_exam, used_questions_in_initial_exam = \
@@ -244,7 +241,6 @@ def _fill_questions_for_reexam(exam, initial_exam):
 
 
 def _get_questions_queryset_for_exact_requirement(requirement, used_count_max, not_used_count, initial_exam, exam):
-
     not_used_questions_in_initial_exam = Question.objects.filter(
         ~Q(id__in=initial_exam.questions.all()),
         ata_chapter=requirement.ata,
@@ -262,7 +258,6 @@ def _get_questions_queryset_for_exact_requirement(requirement, used_count_max, n
         training=exam.course.training,
         level=requirement.level
     ).order_by('?')[:used_count_max]
-
 
     return not_used_questions_in_initial_exam, used_questions_in_initial_exam
 
@@ -299,7 +294,6 @@ def _get_question_sequence_in_initial_exam(question, initial_exam):
 
 
 def _is_sequence_ok(exam, initial_exam=None):
-
     if _is_questions_for_pre_exam_has_not_same_sequence(exam, initial_exam) \
             and _is_exam_has_not_null_sequence(exam) \
             and _is_continuity_ok(exam):
@@ -357,6 +351,7 @@ def get_all_exams_html_table():
     df = pd.DataFrame(list(all_exams_queryset))
     return df.to_html(classes='table table-sm table-hover table-bordered', table_id='exams_database', index=False)
 
+
 #
 # def get_exam_details_json(exam_id):
 #
@@ -398,8 +393,10 @@ def get_all_exams_html_table():
 
 def get_exam_details(exam_id):
     context = {}
-    exam_sequences = QuestionSequence.objects.filter(exam__id=exam_id).values('sequence_number', 'question__id', 'question__question',
-                                                                              'question__ata_chapter__ata_digit', 'question__level')
+    exam_sequences = QuestionSequence.objects.filter(exam__id=exam_id).values('sequence_number', 'question__id',
+                                                                              'question__question',
+                                                                              'question__ata_chapter__ata_digit',
+                                                                              'question__level')
     df = pd.DataFrame(exam_sequences)
 
     exam = get_exam_by_id(exam_id=exam_id)
@@ -416,7 +413,8 @@ def get_exam_details(exam_id):
             'count')[['question__question', 'used_in_last_exam']]
 
         df_questions_by_ata['Used questions percentage'] = (
-            df_questions_by_ata['used_in_last_exam'] / df_questions_by_ata['question__question']) * 100
+            df_questions_by_ata['used_in_last_exam'] /
+            df_questions_by_ata['question__question']) * 100
 
         df_questions_by_ata['Used questions percentage'] = df_questions_by_ata['Used questions percentage'].astype(
             int)
@@ -455,7 +453,7 @@ def _get_requrements_for_exam_questions(exam):
     requirements = Requirements.objects.filter(
         training=exam.course.training, ata__in=exam.ata_chapters.all())
     df = pd.DataFrame(columns=[
-                      'question__ata_chapter__ata_digit', 'Required number of questions', 'Level'])
+        'question__ata_chapter__ata_digit', 'Required number of questions', 'Level'])
     for requirement in requirements:
         df.loc[len(df.index)] = [requirement.ata.ata_digit,
                                  requirement.questions_number,
@@ -464,7 +462,6 @@ def _get_requrements_for_exam_questions(exam):
 
 
 def _get_used_questions_in_exam(exam, initial_exam):
-
     df = pd.DataFrame(columns=['question__id', 'used_in_last_exam'])
     used_questions = Question.objects.filter(
         id__in=initial_exam.questions.all()).all()
@@ -507,7 +504,7 @@ def is_exam_checked(exam):
 
 def _find_initial_exam(exam):
     pre_exam = exam.course.exams.filter(
-        ~Q(id=exam.id), ata_chapters__in=exam.ata_chapters.all()).last()
+        ~Q(id=exam.id), date__lt=exam.date, ata_chapters__in=exam.ata_chapters.all()).last()
     if pre_exam:
         return pre_exam
     else:
@@ -565,10 +562,12 @@ def change_one_question_in_exam(exam, question_id):
             exam=initial_exam, sequence_number=question_sequence_number).first().question
         if _was_question_used_in_last_exam(question, exam):
             question_to_exam = Question.objects.filter(~Q(id__in=[question.id, bad_question.id]), ~Q(
-                id__in=exam.questions.all()), ata_chapter=question.ata_chapter, training=exam.course.training).order_by('?').first()
+                id__in=exam.questions.all()), ata_chapter=question.ata_chapter, training=exam.course.training).order_by(
+                '?').first()
         else:
             question_to_exam = Question.objects.filter(~Q(id__in=[question.id, bad_question.id]), ~Q(
-                id__in=exam.questions.all()), ~Q(id__in=initial_exam.questions.all()), ata_chapter=question.ata_chapter, training=exam.course.training).order_by('?').first()
+                id__in=exam.questions.all()), ~Q(id__in=initial_exam.questions.all()), ata_chapter=question.ata_chapter,
+                training=exam.course.training).order_by('?').first()
 
     else:
         question_to_exam = Question.objects.filter(~Q(id__in=exam.questions.all(
@@ -588,16 +587,68 @@ def change_one_question_in_exam(exam, question_id):
     return {'OK': 'OKI'}
 
 
-
-
 def get_course_power(course_id):
     course = Course.objects.get(pk=course_id)
     correct_answers_count = QuestionResult.objects.filter(
         exam__in=course.exams.all(), is_correct=True).count()
     total_answers_count = QuestionResult.objects.filter(
         exam__in=course.exams.all()).count()
-    power = (correct_answers_count/total_answers_count) * 100
+    power = (correct_answers_count / total_answers_count) * 100
     return int(power)
+
+
+def get_course_by_id(course_id):
+    return Course.objects.get(pk=course_id)
+
+
+def course_details(course):
+    student_stats = []
+    for student in course.students.all():
+        total_answers = student.results.count()
+        correct_answers = student.results.filter(is_correct=True).count()
+        try:
+            correct_percentage = correct_answers/total_answers * 100
+        except ZeroDivisionError:
+            correct_percentage = 0.0
+        student_stat = {
+            'name': student.name,
+            'surname': student.surname,
+            'dob': student.dob,
+            'total_correct_answers': f'{correct_answers}/{total_answers}',
+            'total_correct_answers_percentage': round(correct_percentage, 2)
+        }
+        student_stats.append(student_stat)
+
+    context = {
+        'student_stats': student_stats
+    }
+
+    return context
+
+
+def get_course_exams_details(course):
+    exams_details = []
+    for exam in course.exams.all():
+
+        exam_info = {
+            'id': exam.id,
+            'atas': exam.ata_chapters.all(),
+            'reexam': 'Yes' if _find_initial_exam(exam) else 'No',
+            'is_checked': 'Yes' if is_exam_checked(exam) else 'No',
+            'questions_number': exam.questions.count(),
+            'date': exam.date
+        }
+        exams_details.append(exam_info)
+
+    return exams_details
+
+
+def student_update(student_id):
+    pass
+
+
+def get_student_by_id(student_id):
+    return Student.objects.get(pk=student_id)
 
 
 if __name__ == '__main__':

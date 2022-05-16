@@ -37,7 +37,6 @@ class CreateNewQuestionForm(forms.Form):
 
 
 class EditQuestionForm(CreateNewQuestionForm):
-
     changed_by = forms.CharField(label='Changed By')
     change_reason = forms.CharField(label='Change Reason')
     issued_by = None  # это поле нам не нужно
@@ -51,6 +50,7 @@ class CreateExamForm(forms.ModelForm):
             'ata_chapters': forms.CheckboxSelectMultiple(attrs={'class': 'col'}),
             'date': forms.widgets.DateInput(attrs={'type': 'date'})
         }
+
 
 # class CreateExamForm(forms.Form):
 #     date = forms.DateField(widget=forms.SelectDateWidget)
@@ -68,4 +68,19 @@ class CreateReexamForm(forms.ModelForm):
         fields = ['date', 'note_for_examiner']
         widgets = {
             'date': forms.widgets.DateInput(attrs={'type': 'date'})
+        }
+
+
+class CreateCourseForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = ['training', 'course_number']
+
+
+class StudentForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        exclude = ['course']
+        widgets = {
+            'dob': forms.widgets.DateInput(attrs={'type': 'date'})
         }

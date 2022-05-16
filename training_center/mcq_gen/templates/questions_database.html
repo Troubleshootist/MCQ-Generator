@@ -60,8 +60,8 @@
         
         $(document).on('click','#questions_database tr',function(e){
             var row_object  = table.api().row(this).data();
-            var url = "{% url 'question_details' 'kuku'%}"
-            url = url.replace('kuku', row_object[1])
+            var url = "{% url 'question_details' 123 %}"
+            url = url.replace('123', row_object[1])
             
             window.open(url, '_blank');
            

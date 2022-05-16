@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from django.views.generic import ListView
 from django.core import serializers
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 import json
@@ -109,7 +108,6 @@ def all_exams(request):
 
 
 def exam_details(request, exam_id):
-
     exam = services.get_exam_by_id(exam_id)
     is_it_second_reexam = services.is_it_second_reexam(exam)
     is_it_reexam = services.is_it_reexam(exam)
@@ -158,13 +156,11 @@ def create_reexam(request, exam_id):
 
 
 def delete_exam(request, exam_id):
-
     services.delete_exam(exam_id)
     return redirect('all_exams')
 
 
 def auto_change_question(request, exam_id):
-
     exam = services.get_exam_by_id(exam_id=exam_id)
     question_id_to_change = json.loads(request.GET['question'])[1]
     changed_exam = services.change_one_question_in_exam(
@@ -174,13 +170,78 @@ def auto_change_question(request, exam_id):
 
 
 def all_courses(request):
-
     courses = services.get_all_courses()
     context = {'courses': courses}
 
     return render(request, 'courses.html', context)
 
 
-def course_power_json(request, course_id):
-    power = services.get_course_power(course_id)
-    return JsonResponse({'power': power})
+def course_details(request, course_id):
+    course = services.get_course_by_id(course_id)
+    context = {
+        'students': services.course_details(course)['student_stats'],
+        'course': course,
+        'exams': services.get_course_exams_details(course)
+    }
+    return render(request, 'course_details.html', context)
+
+
+def create_course(request):
+    create_course_form = CreateCourseForm()
+    if request.method == 'POST':
+        create_course_form = CreateCourseForm(request.POST)
+        if create_course_form.is_valid():
+            new_course = create_course_form.save()
+            return redirect('course_details', new_course.id)
+    context = {'create_course_form': create_course_form}
+    return render(request, 'create_course.html', context)
+
+
+def add_student_to_course(request, course_id):
+    course = services.get_course_by_id(course_id)
+    create_student_form = CreateStudentForm()
+    if request.method == 'POST':
+        create_student_form = CreateStudentForm(request.POST)
+        if create_student_form.is_valid():
+            new_student = create_student_form.save()
+            new_student.course = course
+    context = {'create_student_form': create_student_form}
+    return render(request, 'create_student.html', context)
+
+
+def manage_students(request, course_id):
+    course = services.get_course_by_id(course_id)
+    students = course.students.all()
+    context = {
+        'students': students,
+        'course': course
+    }
+    return render(request, 'students_list.html', context)
+
+
+def student_update(request, course_id, student_id=0):
+    """Update or create student"""
+
+    course = services.get_course_by_id(course_id)
+
+    if request.method == 'GET':
+        if student_id == 0:
+            student_form = StudentForm()
+        else:
+            student = services.get_student_by_id(student_id)
+            student_form = StudentForm(instance=student)
+        context = {'student_form': student_form}
+        return render(request, 'student_update.html', context)
+    else:
+        if student_id == 0:
+            student_form = StudentForm(request.POST)
+        else:
+            student = services.get_student_by_id(student_id)
+            student_form = StudentForm(request.POST, instance=student)
+        if student_form.is_valid():
+
+            if student_form.instance.course_id is None:
+                student_form.instance.course_id = course.id
+            student_form.save()
+
+        return redirect('manage_students', course_id=course_id)

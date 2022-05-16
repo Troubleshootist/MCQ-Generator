@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Course {{ course.course_number }}, {{ course.training.name }}</h1>
+    <div class="row">
+        <div class="col-4">
+            <h2>Students</h2>
+            <table class="table table-sm table-bordered" id="students_table">
+                <thead>
+                    <th>Name</th>
+                    <th>Surname</th>
+                    <th>Total correct answers</th>
+                    <th>Correct answers percentage</th>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                        <tr>
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.surname }}</td>
+                            <td>{{ student.total_correct_answers }}</td>
+                            <td>{{ student.total_correct_answers_percentage }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% url 'manage_students' course.id as the_url_to_manage_students %}
+            <a href="{{ the_url_to_manage_students }}" class="btn btn-info">Manage students</a>
+        </div>
+        <div class="col-8">
+            <h2>Exams</h2>
+            <table class="table table-sm table-bordered table-hover" id="exams_table">
+                <thead>
+                    <th>Exam ID</th>
+                    <th>ATA Chapters</th>
+                    <th>Reexam</th>
+                    <th>Checked</th>
+                    <th>Number of questions</th>
+                    <th>Date</th>
+                </thead>
+                <tbody>
+                    {% for exam in exams %}
+                        <tr>
+                            <td>{{ exam.id }}</td>
+                            <td>
+                                {% for ata in exam.atas %}{{ ata.ata_digit }}&nbsp{% endfor %}
+                            </td>
+                            <td>{{ exam.reexam }}</td>
+                            <td>{{ exam.is_checked }}</td>
+                            <td>{{ exam.questions_number }}</td>
+                            <td>{{ exam.date }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script>
+    $("#exams_table tbody").on('click','tr',function(){
+        // get the current row
+        var currentRow=$(this); 
+        
+        examID = currentRow[0].cells[0].innerHTML 
+        var url = "{% url 'exam_details' 123 %}"
+        url = url.replace('123', examID)
+
+        window.open(url, '_blank');
+   });
+    </script>
+{% endblock scripts %}

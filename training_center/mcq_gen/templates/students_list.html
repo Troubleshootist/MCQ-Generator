@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="jumbotron">
+        <table class="table table-sm">
+            <thead>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>Date of birth</th>
+                <th>
+                    <a href="{% url 'student_create' course.id %}"
+                       type="button"
+                       class="btn text-secondary px-0">Create</a>
+                </th>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                    <tr>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.surname }}</td>
+                        <td>{{ student.dob }}</td>
+                        <td>
+                            <a href="{% url 'student_update' student.course.id student.id %}"
+                               type="button"
+                               class="btn text-secondary px-0">Edit</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock content %}

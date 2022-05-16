@@ -2,8 +2,12 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <h2>Exam ID# {{ exam.id }}, {{ exam.note_for_examiner }}</h2>
+            <h2>Exam ID# {{ exam.id }}, {{ exam.note_for_examiner }}, {{ exam.date }}</h2>
             <h5>{{ exam.course.training.name }}</h5>
+            <h5>
+                ATA Chapters:
+                {% for ata in exam.ata_chapters.all %}{{ ata.ata_digit }}&nbsp{% endfor %}
+            </h5>
             <table id="exam_question_details"
                    class="table table-sm table-hover table-bordered table-stripped">
                 <thead>
@@ -42,23 +46,25 @@
                 </tbody>
             </table>
         </div>
-        {% if not is_it_second_reexam %}
-            {% url 'create_reexam' exam.id as the_url_to_reexam %}
-            <a href="{{ the_url_to_reexam }}" type="button" class="btn btn-primary">Create reexam</a>
-        {% endif %}
-        {% if not is_exam_checked %}
-            {% url 'delete_exam' exam.id as the_url_to_delete_exam %}
-            <a href="{{ the_url_to_delete_exam }}"
-               type="button"
-               class="btn btn-danger">Delete exam</a>
-        {% endif %}
+        <div class="container mt-3">
+            {% if not is_it_second_reexam %}
+                {% url 'create_reexam' exam.id as the_url_to_reexam %}
+                <a href="{{ the_url_to_reexam }}" type="button" class="btn btn-primary">Create reexam</a>
+            {% endif %}
+            {% if not is_exam_checked %}
+                {% url 'delete_exam' exam.id as the_url_to_delete_exam %}
+                <a href="{{ the_url_to_delete_exam }}"
+                   type="button"
+                   class="btn btn-danger">Delete exam</a>
+            {% endif %}
+        </div>
     </div>
 {% endblock content %}
 {% block scripts %}
     <script>
 $(document).ready(function() {
     var question_details_table = $('#exam_question_details').dataTable( {
-        ajax: "{% url 'ajax_details_for_questions' 'kuku'%}".replace('kuku', {{ exam.id }}),
+        ajax: "{% url 'ajax_details_for_questions' 123%}".replace('123', {{ exam.id }}),
         dataSrc: 'data',
         
         paging: false,
@@ -81,7 +87,7 @@ $(document).ready(function() {
     {% if is_exam_checked %}        question_details_table.api().button(0).remove(){% endif %}
 
     var count_questions_by_ata = $('#count_questions_by_ata').dataTable( {
-        ajax: "{% url 'ajax_count_questions_by_ata' 'kuku'%}".replace('kuku', {{ exam.id }}),
+        ajax: "{% url 'ajax_count_questions_by_ata' 123 %}".replace('123', {{ exam.id }}),
         dataSrc: 'data',
         paging: false,
         searching: false,
@@ -91,8 +97,8 @@ $(document).ready(function() {
 
 
     question_details_table.api().button(0).action( function ( e, dt, button, config ) {
-        var url = "{% url 'auto_change_questions' 'kuku'%}"
-        url = url.replace('kuku', {{ exam.id }})
+        var url = "{% url 'auto_change_questions' '123'%}"
+        url = url.replace('123', {{ exam.id }})
         selectedRowsData = dt.rows( { selected: true } ).data()
         data = JSON.stringify(selectedRowsData[0])
         $.get( url, { question: data } )

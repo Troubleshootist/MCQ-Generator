@@ -1,14 +1,21 @@
 from django.db import models
 
 
-class Training(models.Model):
+class BaseModel(models.Model):
+    objects = models.Manager()
+
+    class Meta:
+        abstract = True
+
+
+class Training(BaseModel):
     name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
 
 
-class AtaChapter(models.Model):
+class AtaChapter(BaseModel):
     ata_digit = models.CharField(max_length=10)
     ata_description = models.CharField(max_length=300)
 
@@ -16,7 +23,7 @@ class AtaChapter(models.Model):
         return self.ata_digit
 
 
-class Requirements(models.Model):
+class Requirements(BaseModel):
     training = models.ForeignKey(
         Training, on_delete=models.CASCADE, related_name='requirements')
     ata = models.ForeignKey(
@@ -28,7 +35,7 @@ class Requirements(models.Model):
         return f'Training: {self.training.name}, ATA: {self.ata.ata_digit}'
 
 
-class Question(models.Model):
+class Question(BaseModel):
     question = models.CharField(max_length=400)
     level = models.IntegerField(default=100)
     training = models.ForeignKey(
@@ -52,14 +59,14 @@ class Question(models.Model):
         return self.question
 
 
-class Answer(models.Model):
+class Answer(BaseModel):
     question = models.ForeignKey(
         Question, on_delete=models.CASCADE, related_name='answers')
     answer = models.CharField(max_length=400, default=False)
     correct = models.BooleanField(default=False)
 
 
-class Course(models.Model):
+class Course(BaseModel):
     training = models.ForeignKey(
         Training, on_delete=models.CASCADE, related_name='courses')
     course_number = models.CharField(max_length=50)
@@ -68,7 +75,7 @@ class Course(models.Model):
         return " ,".join((self.course_number, self.training.name))
 
 
-class Student(models.Model):
+class Student(BaseModel):
     name = models.CharField(max_length=30)
     surname = models.CharField(max_length=30)
     dob = models.DateField()
@@ -79,7 +86,7 @@ class Student(models.Model):
         return " ,".join((self.surname, self.course.course_number, self.course.training.name))
 
 
-class Exam(models.Model):
+class Exam(BaseModel):
     date = models.DateField()
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name='exams')
@@ -88,7 +95,7 @@ class Exam(models.Model):
     note_for_examiner = models.CharField(max_length=50)
 
 
-class QuestionSequence(models.Model):
+class QuestionSequence(BaseModel):
     question = models.ForeignKey(
         Question, on_delete=models.CASCADE, related_name='sequences')
     exam = models.ForeignKey(
@@ -96,7 +103,7 @@ class QuestionSequence(models.Model):
     sequence_number = models.IntegerField(verbose_name='Seq. number')
 
 
-class QuestionResult(models.Model):
+class QuestionResult(BaseModel):
     exam = models.ForeignKey(
         Exam, on_delete=models.CASCADE, related_name='results', default=None)
     question = models.ForeignKey(
