@@ -20,7 +20,7 @@ class AtaChapter(BaseModel):
     ata_description = models.CharField(max_length=300)
 
     def __str__(self):
-        return self.ata_digit
+        return f'{self.ata_digit} - {self.ata_description}'
 
 
 class Requirements(BaseModel):
@@ -39,7 +39,7 @@ class Question(BaseModel):
     question = models.CharField(max_length=400)
     level = models.IntegerField(default=100)
     training = models.ForeignKey(
-        to=Training, on_delete=models.CASCADE, related_name='training')
+        to=Training, on_delete=models.CASCADE, related_name='questions')
     enabled = models.BooleanField(default=True)
     checked = models.BooleanField(default=False)
     ata_chapter = models.ForeignKey(

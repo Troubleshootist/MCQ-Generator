@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h3>{{ training.name }} details and requirements</h3>
+    <table class="table table-sm table-bordered mt-4">
+        <thead>
+            <th>ATA Chapter</th>
+            <th>ATA Description</th>
+            <th>Level</th>
+            <th>Minimal number of questions</th>
+            <th>
+                <a href="{% url 'requirement_create' training.id %}"
+                   type="button"
+                   class="btn btn-primary">Create</a>
+            </th>
+        </thead>
+        <tbody>
+            {% for requirement in training.requirements.all|dictsort:"ata.ata_digit" %}
+                <tr>
+                    <td>{{ requirement.ata.ata_digit }}</td>
+                    <td>{{ requirement.ata.ata_description }}</td>
+                    <td>{{ requirement.level }}</td>
+                    <td>{{ requirement.questions_number }}</td>
+                    <td>
+                        <a href="{% url 'requirement_update' training.id requirement.id %}"
+                           type="button"
+                           class="btn btn-secondary px-0">Edit</a>
+                        <a href="{% url 'requirement_delete' training.id requirement.id %}"
+                           type="button"
+                           class="btn btn-danger px-0">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

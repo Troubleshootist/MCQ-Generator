@@ -84,3 +84,9 @@ class StudentForm(forms.ModelForm):
         widgets = {
             'dob': forms.widgets.DateInput(attrs={'type': 'date'})
         }
+
+
+class RequirementForm(forms.ModelForm):
+    class Meta:
+        model = Requirements
+        exclude = ['training']

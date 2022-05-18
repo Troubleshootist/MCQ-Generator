@@ -38,12 +38,28 @@ urlpatterns = [
          views.auto_change_question, name='auto_change_questions'),
 
     path('courses/', views.all_courses, name='all_courses'),
-    path('courses/<int:course_id>/details', views.course_details, name='course_details'),
+    path('courses/<int:course_id>/details',
+         views.course_details, name='course_details'),
     path('courses/create', views.create_course, name='create_course'),
 
-    path('courses/<int:course_id>/manage_students', views.manage_students, name='manage_students'),
+    path('courses/<int:course_id>/manage_students',
+         views.manage_students, name='manage_students'),
     path('courses/<int:course_id>/manage_students/<int:student_id>/student_update',
          views.student_update, name='student_update'),
+    path('courses/<int:course_id>/manage_students/<int:student_id>/student_delete',
+         views.student_delete, name='student_delete'),
     path('courses/<int:course_id>/manage_students/student_create',
-         views.student_update, name='student_create')
+         views.student_update, name='student_create'),
+
+    path('trainings', views.trainings, name='trainings'),
+    path('trainings/<int:training_id>/details',
+         views.training_details, name='training_details'),
+
+    path('trainings/<int:training_id>/details/<int:requirement_id>/requirement_update',
+         views.requirement_update, name='requirement_update'),
+    path('trainings/<int:training_id>/details/<int:requirement_id>/requirement_delete',
+         views.requirement_delete, name='requirement_delete'),
+    path('trainings/<int:training_id>/details/requirement_create',
+         views.requirement_update, name='requirement_create'),
+
 ]

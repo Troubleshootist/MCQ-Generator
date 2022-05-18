@@ -9,7 +9,7 @@
                 <th>
                     <a href="{% url 'student_create' course.id %}"
                        type="button"
-                       class="btn text-secondary px-0">Create</a>
+                       class="btn btn-primary px-0">Create</a>
                 </th>
             </thead>
             <tbody>
@@ -21,7 +21,10 @@
                         <td>
                             <a href="{% url 'student_update' student.course.id student.id %}"
                                type="button"
-                               class="btn text-secondary px-0">Edit</a>
+                               class="btn btn-secondary btn-lg">Edit</a>
+                            <a href="{% url 'student_delete' student.course.id student.id %}"
+                               type="button"
+                               class="btn btn-danger">Delete</a>
                         </td>
                     </tr>
                 {% endfor %}

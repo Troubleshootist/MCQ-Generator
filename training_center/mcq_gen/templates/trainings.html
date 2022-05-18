@@ -1,3 +1,23 @@
 {% extends 'base.html' %}
 {% block content %}
+    <h3>Trainings</h3>
+    <div class="row row-cols-1 row-cols-md-4 g-3 mt-3">
+        {% for training in trainings %}
+            <div class="col">
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ training.name }}</h5>
+                        <p class="card-text">
+                            <ul>
+                                <li>Number of courses: {{ training.courses.count }}</li>
+                                <li>Number of questions: {{ training.questions.count }}</li>
+                            </ul>
+                        </p>
+                        {% url 'training_details' training.id as the_url_to_training_details %}
+                        <a href="{{ the_url_to_training_details }}" class="btn btn-info">Details</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock content %}

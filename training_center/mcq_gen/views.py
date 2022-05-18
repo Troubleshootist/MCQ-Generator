@@ -181,7 +181,8 @@ def course_details(request, course_id):
     context = {
         'students': services.course_details(course)['student_stats'],
         'course': course,
-        'exams': services.get_course_exams_details(course)
+        'exams': services.get_course_exams_details(course),
+        'power': services.get_course_power(course_id)
     }
     return render(request, 'course_details.html', context)
 
@@ -245,3 +246,54 @@ def student_update(request, course_id, student_id=0):
             student_form.save()
 
         return redirect('manage_students', course_id=course_id)
+
+
+def student_delete(request, course_id, student_id):
+    services.student_delete(student_id)
+    return redirect('manage_students', course_id)
+
+
+def trainings(request):
+    context = {
+        'trainings': services.get_all_trainings()
+    }
+    return render(request, 'trainings.html', context)
+
+
+def training_details(request, training_id):
+    training = services.get_training_by_id(training_id)
+    context = {
+        'training': training
+    }
+    return render(request, 'training_details.html', context)
+
+
+def requirement_update(request, training_id, requirement_id=0):
+    training = services.get_training_by_id(training_id)
+    if request.method == 'GET':
+        if requirement_id == 0:
+            requirement_form = RequirementForm()
+        else:
+            requirement = services.get_requirement_by_id(requirement_id)
+            requirement_form = RequirementForm(instance=requirement)
+        context = {'requirement_form': requirement_form}
+        return render(request, 'requirement_update.html', context)
+    else:
+        if requirement_id == 0:
+            requirement_form = RequirementForm(request.POST)
+        else:
+            requirement = services.get_requirement_by_id(requirement_id)
+            requirement_form = RequirementForm(
+                request.POST, instance=requirement)
+
+        if requirement_form.is_valid():
+            if requirement_form.instance.training_id is None:
+                requirement_form.instance.training_id = training.id
+            requirement_form.save()
+
+    return redirect('training_details', training.id)
+
+
+def requirement_delete(request, training_id, requirement_id):
+    services.delete_requirement(requirement_id)
+    return redirect('training_details', training_id)

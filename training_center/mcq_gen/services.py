@@ -593,7 +593,10 @@ def get_course_power(course_id):
         exam__in=course.exams.all(), is_correct=True).count()
     total_answers_count = QuestionResult.objects.filter(
         exam__in=course.exams.all()).count()
-    power = (correct_answers_count / total_answers_count) * 100
+    try:
+        power = (correct_answers_count / total_answers_count) * 100
+    except ZeroDivisionError:
+        power = 0
     return int(power)
 
 
@@ -643,12 +646,26 @@ def get_course_exams_details(course):
     return exams_details
 
 
-def student_update(student_id):
-    pass
+def student_delete(student_id):
+    student = Student.objects.get(pk=student_id)
+    student.delete()
 
 
 def get_student_by_id(student_id):
     return Student.objects.get(pk=student_id)
+
+
+def get_training_by_id(training_id):
+    return Training.objects.get(pk=training_id)
+
+
+def get_requirement_by_id(requirement_id):
+    return Requirements.objects.get(pk=requirement_id)
+
+
+def delete_requirement(requirement_id):
+    requirement = Requirements.objects.get(pk=requirement_id)
+    requirement.delete()
 
 
 if __name__ == '__main__':
