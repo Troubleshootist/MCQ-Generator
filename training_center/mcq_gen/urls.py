@@ -5,6 +5,8 @@ from . import views
 urlpatterns = [
     path('questions_database/', views.questions_database,
          name='questions_database'),
+    path('get_questions_by_ata_and_training', views.get_questions_by_ata_and_training,
+         name='get_questions_by_ata_and_training'),
     path('questions_database/question_details/<int:question_id>/',
          views.question_details, name='question_details'),
     path('questions_database/question_details/<int:question_id>/edit_question/',

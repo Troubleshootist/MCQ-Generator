@@ -5,63 +5,118 @@
     <div class="container px-5 mt-4 bg-light">
         <div class="row">
             <div class="col-sm">
-                <form action="" method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ filter_form }}
-                    <label for="">Ata chapter:</label>
-                    <div class="row" id='ata_checkboxes'>
-                        {% for ata in atas %}
-                            <div class="col-1">
-                                <label for="{{ ata.ata_digit }}">{{ ata.ata_digit }}</label>
-                                <input class="form-check-input"
-                                       type="checkbox"
-                                       name="{{ ata.ata_digit }}"
-                                       id="{{ ata.ata_digit }}">
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <input type="submit" value="Filter" class="btn btn-primary mt-3">
-                </form>
+                <label for="training">Training:</label>
+                <select name="training" id="training">
+                    {% for training in trainings %}
+                        <option>
+                            {{ training }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <label for="ata_checkboxes">Ata chapter:</label>
+                <div class="row" id='ata_checkboxes'>
+                    {% for ata in atas %}
+                        <div class="col-1">
+                            <label for="{{ ata.ata_digit }}">{{ ata.ata_digit }}</label>
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="{{ ata.ata_digit }}"
+                                   id="{{ ata.ata_digit }}">
+                        </div>
+                    {% endfor %}
+                    <button class ="btn btn-primary mb-3" id="filter_button">Filter</button>
+                </div>
             </div>
             <div class = "col-sm">
                 <a href="{% url 'create_question' %}" class="btn btn-warning mt-3">Create new question</a>
-                <div class="card mt-3"  id="general_info">
+                <div class="card mt-3">
                     <div class="card-header">General information</div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">Training: {{ training_name }}</li>
-                        <li class="list-group-item">Selected ATA Chapters: {{ atas_list }}</li>
-                        <li class="list-group-item">Questions count: {{ questions_count }}</li>
+                    <ul class="list-group list-group-flush"  id="general_info">
                     </ul>
                 </div>
             </div>
         </div>
-        {{ questions_table | safe }}
+        {% comment %} {{ questions_table | safe }} {% endcomment %}
+        <table id="questions_database" class = "table table-sm table-bordered mt-3">
+            <thead>
+                <th>ID</th>
+                <th>Question</th>
+                <th>Level</th>
+                <th>Enabled</th>
+                <th>Checked</th>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
     </div>
 {% endblock content %}
 {% block scripts %}
     <script type="text/javascript" language="javascript" class="init">
-    $('#general_info').hide()
-    {% if questions_count > 0 %}
-        $('#general_info').show()
-    {% else %}
-        $('#general_info').hide()
-    {% endif %}
-        
     $(document).ready(function() {
+        var tableJsonData = {}
         var table = $('#questions_database').dataTable( {
+            data: tableJsonData,
             paging: false,
             scrollY: 400,
             scrollCollapse: true,
             fixedColumns: true,
             dom: 'Bfrtip',
-            
+            columns: [
+                {data: 'id'},
+                {data: 'question'},
+                {data: 'level'},
+                {data: 'enabled'},
+                {data: 'checked'},
+            ]
         } );
         
+        $('#filter_button').on('click' , function(){
+            var training_name = $('#training').val()
+            var selected = []
+            $('#ata_checkboxes input:checked').each(function() {
+                selected.push($(this).attr('name'));
+            });
+            let data = {
+                training_name: training_name,
+                atas: selected
+              }
+            console.log(data)
+            $.ajax({
+                type: 'get',
+                url: "{% url 'get_questions_by_ata_and_training'%}",
+                data: data,
+                traditional: true,
+                success: function(data) {
+                    
+                    table.api().clear();
+                    table.api().rows.add(data['questions']);
+                    table.api().draw();
+                    $("#questions_database td:nth-child(4):contains('false')").html('No');
+                    $("#questions_database td:nth-child(5):contains('false')").html('No');
+                    $("#questions_database td:nth-child(4):contains('true')").html('Yes');
+                    $("#questions_database td:nth-child(5):contains('true')").html('Yes');
+
+                    $('#general_info').children().remove()
+
+                    $('#training_info').html('Training: '+ $('#training').val())
+                    $('#selected_atas_info').html('ATA Chapters: '+ data['atas'])
+                    $('#questions_count_info').html('Questions count: ' + data['questions_count'])
+
+
+                    $('#general_info').append($("<li class='list-group-item'>Training: "+ $('#training').val() +"</li>"))
+                    $('#general_info').append($("<li class='list-group-item'>ATA Chapters: "+ data['atas'] +"</li>"))
+                    $('#general_info').append($("<li class='list-group-item'>Questions Count: "+ data['questions_count'] +"</li>"))
+                    $('#general_info').append($("<li class='list-group-item'>Ready Questions Count: "+ data['ready_questions_count'] +"</li>"))
+                }
+                
+              });    
+              
+        })
         
         $(document).on('click','#questions_database tr',function(e){
             var row_object  = table.api().row(this).data();
             var url = "{% url 'question_details' 123 %}"
-            url = url.replace('123', row_object[1])
+            url = url.replace('123', row_object['id'])
             
             window.open(url, '_blank');
            

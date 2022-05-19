@@ -33,6 +33,14 @@ def questions_database(request):
     return render(request, 'questions_database.html', context)
 
 
+def get_questions_by_ata_and_training(request):
+    training_name = request.GET.get('training_name')
+    atas = request.GET.getlist('atas')
+    filtered_info = services.get_questions_by_ata_and_training_name(
+        atas, training_name)
+    return JsonResponse(filtered_info, safe=False)
+
+
 def test(request):
     questions_queryset = services.get_questions_database()
     json = serializers.serialize('json', questions_queryset)

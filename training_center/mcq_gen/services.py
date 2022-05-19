@@ -47,6 +47,21 @@ def get_questions_by_ata_and_training(atas_list, training_id):
         return '', 0, training.name
 
 
+def get_questions_by_ata_and_training_name(atas_list, training_name):
+
+    filtered_questions = Question.objects.filter(
+        ata_chapter__ata_digit__in=atas_list, training__name=training_name)
+    enabled_questions = Question.objects.filter(
+        ata_chapter__ata_digit__in=atas_list, training__name=training_name, enabled=True, checked=True)
+    context = {
+        'questions': list(filtered_questions.values()),
+        'questions_count': filtered_questions.count(),
+        'atas': atas_list,
+        'ready_questions_count': enabled_questions.count()
+    }
+    return context
+
+
 def disable_question(question_id, disable_reason):
     question = Question.objects.filter(id=question_id).first()
     question.disable_reason = disable_reason
@@ -350,45 +365,6 @@ def get_all_exams_html_table():
     all_exams_queryset = Exam.objects.values()
     df = pd.DataFrame(list(all_exams_queryset))
     return df.to_html(classes='table table-sm table-hover table-bordered', table_id='exams_database', index=False)
-
-
-#
-# def get_exam_details_json(exam_id):
-#
-# exam_sequences = QuestionSequence.objects.filter(exam__id=exam_id).values('sequence_number', 'question__id',
-# 'question__question', 'question__ata_chapter__ata_digit', 'question__level') df = pd.DataFrame(exam_sequences) df =
-# df.rename(columns={'sequence_number': 'Sequence Number', 'question__id': 'Question ID', 'question__question':
-# 'Question', 'question__ata_chapter__ata_digit': 'ATA', 'question__level': 'Level'})
-#
-#     exam = get_exam_by_id(exam_id=exam_id)
-#
-#     initial_exam = Exam.objects.filter(
-#         id__lt=exam_id, ata_chapters__in=exam.ata_chapters.all(), course=exam.course).last()
-#
-#     if initial_exam:
-#         df_used_questions = _get_used_questions_in_exam(exam, initial_exam)
-#         df = pd.merge(
-#             df, df_used_questions, on="Question ID", how="inner")
-#
-#     df.fillna('', inplace=True)
-#
-#     return df.to_dict(orient='split')
-
-
-# def get_count_questions_by_ata_json(exam_id):
-#     exam = get_exam_by_id(exam_id=exam_id)
-#     initial_exam = Exam.objects.filter(
-#         id__lt=exam_id, ata_chapters__in=exam.ata_chapters.all(), course=exam.course).last()
-#
-#     if initial_exam:
-#         df_questions_by_ata = df.groupby(['ATA', 'Level']).agg(
-#             'count')[['Question', 'used_in_last_exam']]
-#
-#         df_questions_by_ata['Used questions percentage'] = (
-#             df_questions_by_ata['used_in_last_exam'] / df_questions_by_ata['Question']) * 100
-#
-#         df_questions_by_ata['Used questions percentage'] = df_questions_by_ata['Used questions percentage'].astype(
-#             int)
 
 
 def get_exam_details(exam_id):
