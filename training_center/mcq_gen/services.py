@@ -164,7 +164,7 @@ def get_initial_values_for_question_edit_form(question_id):
 
 
 def create_exam(data):
-    # Определяем пересдача ли или нет
+
     exam = Exam(
         date=data['date'],
         note_for_examiner=data['note_for_examiner'],
@@ -195,6 +195,15 @@ def new_exam(exam):
 
     _addition_questions_to_divide_by_four(exam)
     set_exam_questions_sequence(exam)
+
+
+def get_remaining_atas_for_course(course_id):
+    course = Course.objects.get(pk=course_id)
+    used_atas_list_in_course = course.exams.values_list(
+        'ata_chapters__ata_digit', flat=True)
+    remaining_ata_chapters = AtaChapter.objects.filter(
+        ~Q(ata_digit__in=used_atas_list_in_course))
+    return list(remaining_ata_chapters.values_list('ata_digit', flat=True))
 
 
 def _addition_questions_to_divide_by_four(exam, initial_exam=None):

@@ -31,6 +31,8 @@ urlpatterns = [
          views.ajax_count_questions_by_ata, name='ajax_count_questions_by_ata'),
     path('exams/create/',
          views.create_exam, name='create_exam'),
+    path('exams/create/<int:course_id>/get_remaining_atas_for_course',
+         views.get_remaining_atas_for_course, name='get_remaining_atas_for_course'),
     path('exams/<int:exam_id>/create_reexam',
          views.create_reexam, name='create_reexam'),
     path('exams/<int:exam_id>/delete_exam',
@@ -64,4 +66,8 @@ urlpatterns = [
     path('trainings/<int:training_id>/details/requirement_create',
          views.requirement_update, name='requirement_create'),
 
+    path('atas/', views.AtaChaptersListView.as_view(), name='atas_list'),
+    path('atas/create', views.AtaChapterCreateView.as_view(), name='ata_create'),
+    path('atas/<pk>/update', views.AtaChapterUpdateView.as_view(), name='ata_update'),
+    path('atas/<pk>/delete', views.AtaChapterDeleteView.as_view(), name='ata_delete')
 ]

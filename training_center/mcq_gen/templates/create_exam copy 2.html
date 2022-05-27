@@ -2,8 +2,29 @@
 {% block content %}
     <form action="" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ create_exam_form }}
-        <input type="submit" class="btn btn-primary" value="Create">
+        <select name="course" id="course">
+            {% for course in courses %}
+                <option value="{{ course.id }}">
+                    {{ course }}
+                </option>
+            {% endfor %}
+        </select>
+        <input type="date" name="exam_date" id="exam_date">
+        <div class="row row-cols-1 row-cols-md-6 g-3 mt-3">
+            {% for ata in atas %}
+                <div class="col" id="ata_checkboxes">
+                    <div class="mx-auto">
+                        <label for="{{ ata.ata_digit }}">{{ ata.ata_digit }}</label>
+                        <input type="checkbox"
+                               class="form-check-input"
+                               name="{{ ata.ata_digit }}"
+                               id="{{ ata.ata_digit }}">
+                    </div>
+                </div>
+            {% endfor %}
+            <a href="#" class="btn btn-primary" id = "btn_create_exam">Create New Exam</a>
+            <input type="submit" class="btn btn-primary" value="Create">
+        </div>
     </form>
 {% endblock content %}
 {% block scripts %}

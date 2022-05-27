@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+    <table class="table table-sm">
+        <thead>
+            <th>ATA</th>
+            <th>Description</th>
+            <th>
+                <a href="{% url 'ata_create' %}">Create</a>
+            </th>
+        </thead>
+        <tbody>
+            {% for ata in object_list|dictsort:"ata_digit" %}
+                <tr>
+                    <td>{{ ata.ata_digit }}</td>
+                    <td>{{ ata.ata_description }}</td>
+                    <td>
+                        <a type="button"
+                           class="btn btn-secondary"
+                           href="{% url 'ata_update' ata.id %}">Edit</a>
+                        <a type="button"
+                           class="btn btn-danger"
+                           href="{% url 'ata_delete' ata.id %}">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

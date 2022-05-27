@@ -72,7 +72,7 @@ class Course(BaseModel):
     course_number = models.CharField(max_length=50)
 
     def __str__(self):
-        return " ,".join((self.course_number, self.training.name))
+        return f'Number: {self.course_number}, {self.training.name}'
 
 
 class Student(BaseModel):

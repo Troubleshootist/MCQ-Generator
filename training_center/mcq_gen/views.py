@@ -1,9 +1,33 @@
 from django.shortcuts import render, redirect
 from django.core import serializers
+from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.views.generic import ListView, UpdateView, CreateView, DeleteView
 import json
 from . import services
 from .forms import *
+
+
+class AtaChaptersListView(ListView):
+
+    model = services.AtaChapter
+
+
+class AtaChapterUpdateView(UpdateView):
+    model = services.AtaChapter
+    fields = ['ata_digit', 'ata_description']
+    success_url = reverse_lazy('atas_list')
+
+
+class AtaChapterCreateView(CreateView):
+    model = services.AtaChapter
+    fields = '__all__'
+    success_url = reverse_lazy('atas_list')
+
+
+class AtaChapterDeleteView(DeleteView):
+    model = services.AtaChapter
+    success_url = reverse_lazy('atas_list')
 
 
 def questions_database(request):
@@ -141,13 +165,21 @@ def ajax_count_questions_by_ata(request, exam_id):
 def create_exam(request):
     create_exam_form = CreateExamForm()
     context = {'create_exam_form': create_exam_form,
-               'atas': services.get_all_atas}
+               'atas': services.get_all_atas,
+               'courses': services.get_all_courses()}
     if request.method == 'POST':
         create_exam_form = CreateExamForm(request.POST)
         if create_exam_form.is_valid():
             created_exam = services.create_exam(create_exam_form.cleaned_data)
             return redirect('exam_details', exam_id=created_exam.id)
     return render(request, 'create_exam.html', context)
+
+
+def get_remaining_atas_for_course(request, course_id):
+    remaining_ata_chapters = services.get_remaining_atas_for_course(
+        course_id)
+    context = {'remaining_ata_chapters': remaining_ata_chapters}
+    return JsonResponse(context)
 
 
 def create_reexam(request, exam_id):
