@@ -15,3 +15,4 @@ training_center/mcq_gen/old_models.py
 training_center/mcq_gen/mcq_old_base.db
 mcq_gen_db_backups
 .DS_Store
+training_center/db.sqlite3
